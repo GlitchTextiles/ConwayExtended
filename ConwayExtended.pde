@@ -1,95 +1,22 @@
-boolean[][] cells;
-int[][] tallies;
-float[] rulesAlive = {0, 0, 100, 100, 100, 100, 0, 0};
-float[] rulesDead = {.0005, 50, 50, 50, 50, 50, 50, 50};
+World world;
+PImage output;
+float[][] rules = {
+    {0, 0, .0625, 1, .125, .0625, 0, 0, 0}, // if the cells are dead, chances of 
+    {0, 0, .25, 1.0, .85, .125, .0625, .025, 0} // if the cells are alive
+  };
 
-void setup (){
-  size(500,500);
-  cells = new boolean[width][height];
-  tallies = new int[width][height];
-
-}
-
-void draw(){
-  evaluateCells();
-  updateCells();
-  renderGeneration();
-  //saveFrame("output/CA_001-###.PNG");
-}
-
-void evaluateCells(){
-  tallies = new int[width][height];
-  for(int x = 0 ; x < width ; x++){
-    for(int y = 0 ; y < height ; y++){
-      tallies[x][y] = tallyNeighbors(x, y);      
-    }
+void setup () {
+  size(500, 500);
+  world = new World(width, height, rules);
+  output = createImage(width, height, GRAY);
+  for (Cell c : world.getCells()) {
+    c.setState(world.probability(.25));
   }
+  frameRate(30);
 }
 
-int tallyNeighbors(int _x, int _y){ 
-  int tally = 0;
-  int x = 0;
-  int y = 0;
-  for(int i = 0 ; i < 3 ; i++){
-    for(int j = 0 ; j < 3 ; j++){     
-      int neighbor_x = _x+(i-1);
-      int neighbor_y = _y+(j-1);
-      if(i != 1 && j != 1){      
-        if( neighbor_x < 0){
-          x = width - 1;
-        } else if(neighbor_x == width){
-          x = 0;
-        } else {
-          x =  neighbor_x;
-        }
-        if( neighbor_y < 0){
-          y = height - 1;
-        } else if(neighbor_y == height){
-          y = 0;
-        } else {
-          y = neighbor_y;
-        }    
-        if(cells[x][y] == true){
-            tally++;
-        }      
-      }
-    }
-  }
-  return tally;
-}
-
-void updateCells(){
-  boolean[][] newCells = new boolean[width][height];
-  for(int x = 0 ; x < width ; x++){
-    for(int y = 0 ; y < height ; y++){
-      if(cells[x][y] == true){
-          newCells[x][y] = probability(rulesAlive[tallies[x][y]]);
-        } else {
-          newCells[x][y] = probability(rulesDead[tallies[x][y]]);
-        }
-    }
-  }
-  cells = newCells;
-}
-
-boolean probability(float _percentChance){
-  if( random(100) < _percentChance ){
-    return true;
-  } else {
-    return false;
-  }
-}
-
-void renderGeneration(){ 
-  loadPixels();
-  for( int x = 0 ; x < width ; x++ ){
-    for( int y = 0 ; y < height ; y++ ){
-      if(cells[x][y] == false){
-        pixels[x+(height*y)]=color(255);
-      } else {
-        pixels[x+(height*y)]=color(0);
-      }      
-    }
-  }
-  updatePixels(); 
+void draw() {
+  output = world.render();
+  image(output, 0, 0);
+  world.update();
 }
