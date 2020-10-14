@@ -99,4 +99,7 @@ public class World {
   public float[][] getRules() {
     return this.rules;
   }
+  public void setRules(float[][] _rules) {
+    this.rules = _rules;
+  }
 }
