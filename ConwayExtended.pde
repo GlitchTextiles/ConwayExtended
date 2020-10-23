@@ -8,7 +8,7 @@ float[][] rules = {
 void setup () {
   size(500, 500);
   world = new World(width, height, rules);
-  output = createImage(width, height, GRAY);
+  output = createImage(width, height, RGB);
   for (Cell c : world.getCells()) {
     c.setState(world.probability(.25));
   }
